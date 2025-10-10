@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="IE=edge" >
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+<title>RTS DEMO</title>
+<!-- 加载 RTS SDK -->
+<script src="https://g.alicdn.com/apsara-media-box/imp-web-rts-sdk/2.5.1/aliyun-rts-sdk.js"></script>
+<!-- 如果降级至 HLS，则加载相应的播放器，此处仅为示例 -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js"></script>
+<style>
+  h1 {
+    text-align: center;
+  }
+  video {
+    width: 100%;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <h1>RTS DEMO</h1>
+  <video muted controls autoplay></video>
+<script>
+  /**
+   * 可以降级的情况：
+   * 1. 浏览器不支持，在 isSupport().catch 中处理
+   * 2. 建联过程、播放中出现<重连失败>错误，在 onError 事件监听10410错误码
+   **/
+  var mediaElement = document.querySelector('video');
+
+  //  拉流地址
+  var pullStreamUrl = 'RTS拉流地址';
+  var fallbackUrl = '降级拉流地址，如HLS';
+
+  // 初始化 SDK
+  var aliRts = AliRTS.createClient();
+  
+  // 监听事件，详见 https://help.aliyun.com/document_detail/397570.html
+  aliRts.on('onError', (error) => {
+    console.log(error.errorCode, error.message); // 错误码、错误信息
+    // 降级判断
+    switch(error.errorCode){
+      case 10410:   // 拉流(订阅)重连彻底失败
+        fallback(); // 降级
+        break;
+      default:
+    }
+  });
+
+  // 检测浏览器是否支持
+  // 对于不在 https://help.aliyun.com/document_detail/397569.html 中的浏览器，可以选择跳过 isSupport 检查，直接执行 subscribeRts 拉流（有风险，需要自测保证）
+  aliRts.isSupport({ isReceiveVideo: true }).then(re=> {
+    // 支持
+    subscribeRts();
+  }).catch(err=> {
+    // 不支持
+    console.log('support error', err);
+    fallback();
+  })
+
+  function subscribeRts() {
+    aliRts.subscribe(pullStreamUrl, {
+      // mediaTimeout: 6000  // 自定义超时事件的触发时间
+      // retryTimes: 5,      // 自定义重连次数 默认5
+  		// retryInterval: 2000,// 自定义重连间隔 默认2000ms
+    }).then((remoteStream) => {
+      remoteStream.play(mediaElement);
+    }).catch(() => {})
+  }
+
+  // 降级至其他协议播放
+  function fallback() {
+    console.log('================[降级]================');
+    // 此处为示例，可以根据您选择的降级 url 选择合适的播放器
+    if (Hls && Hls.isSupported()) {
+      mediaElement.srcObject = null;
+      var hls = new Hls();
+      hls.attachMedia(mediaElement);
+      hls.loadSource(fallbackUrl);
+    }
+  }
+
+</script>
+</body>
