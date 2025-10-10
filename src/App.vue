@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+// @ts-ignore
 import VideoPlayer from './components/VideoPlayer.vue';
 
 // 定义流类型
@@ -13,12 +14,12 @@ interface StreamType {
 interface TabItem extends StreamType { }
 
 // 初始化标签列表
-const tabs = ref<TabItem[]>([
+const tabs: TabItem[] = [
     { id: 'normal', name: '常规', type: 'normal' },
     { id: 'aliyun', name: '阿里云', type: 'aliyun' },
     { id: 'tencent', name: '腾讯云', type: 'tencent' },
     { id: 'fmp4', name: 'FMP4', type: 'fmp4' },
-]);
+];
 
 // 共享的URL
 const sharedUrl = ref<string>('');
@@ -27,7 +28,7 @@ const sharedUrl = ref<string>('');
 const isPlaying = ref<boolean>(false);
 
 // 当前激活的标签
-const activeTab = ref<string>(tabs.value[0].id);
+const activeTab = ref<string>(tabs[0]!.id);
 
 // 切换标签
 const switchTab = (tabId: string) => {
@@ -37,9 +38,9 @@ const switchTab = (tabId: string) => {
 };
 
 // 获取当前标签
-const getCurrentTab = () => {
-    return tabs.value.find(tab => tab.id === activeTab.value) || tabs.value[0];
-};
+const currentTab = computed(() => {
+    return tabs.find(tab => tab.id === activeTab.value) || tabs[0]!;
+});
 
 // 开始播放
 const togglePlaying = () => {
@@ -73,9 +74,8 @@ const getTabHint = (type: string) => {
         <main class="app-main">
             <!-- 标签导航 -->
             <div class="tab-nav">
-                <button v-for="tab in tabs" :key="tab.id" @click="switchTab(tab.id)" 
-                    class="tab-button"
-                    :class="{'tab-active': activeTab === tab.id}">
+                <button v-for="tab in tabs" :key="tab.id" @click="switchTab(tab.id)" class="tab-button"
+                    :class="{ 'tab-active': activeTab === tab.id }">
                     {{ tab.name }}
                 </button>
             </div>
@@ -83,23 +83,20 @@ const getTabHint = (type: string) => {
             <!-- URL输入区域 -->
             <div class="url-input-container">
                 <div class="input-group">
-                    <input type="text" v-model="sharedUrl" placeholder="请输入视频流地址..."
-                        class="url-input" />
-                    <button @click="togglePlaying"
-                        :class="['play-button', isPlaying ? 'pause-button' : '']">
+                    <input type="text" v-model="sharedUrl" placeholder="请输入视频流地址..." class="url-input" />
+                    <button @click="togglePlaying" :class="['play-button', isPlaying ? 'pause-button' : '']">
                         {{ isPlaying ? '暂停' : '播放' }}
                     </button>
                 </div>
                 <p class="format-hint">
-                    支持的格式: {{ getTabHint(getCurrentTab().type) }}
+                    支持的格式: {{ getTabHint(currentTab.type) }}
                 </p>
             </div>
 
             <!-- 视频播放区域 -->
             <div class="video-container">
                 <keep-alive>
-                    <VideoPlayer :key="getCurrentTab().type" :src="sharedUrl" :type="getCurrentTab().type"
-                        :playing="isPlaying" />
+                    <VideoPlayer :key="currentTab.type" :src="sharedUrl" :type="currentTab.type" :playing="isPlaying" />
                 </keep-alive>
             </div>
         </main>
@@ -120,16 +117,22 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .app-header {
@@ -172,7 +175,6 @@ body {
     background: #ffffff;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     padding: 2rem;
-    overflow: hidden;
 }
 
 .tab-nav {
@@ -226,8 +228,15 @@ body {
 }
 
 @keyframes slideIn {
-    from { width: 0; opacity: 0; }
-    to { width: 30px; opacity: 1; }
+    from {
+        width: 0;
+        opacity: 0;
+    }
+
+    to {
+        width: 30px;
+        opacity: 1;
+    }
 }
 
 .url-input-container {
@@ -295,12 +304,14 @@ body {
 }
 
 .video-container {
-    flex: 1;
+    /* flex: 1; */
     background-color: #0f172a;
     border-radius: 16px;
-    overflow: hidden;
+    /* overflow: hidden; */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transition: all 0.3s ease;
+
+    padding: 10px;
 }
 
 .video-container:hover {

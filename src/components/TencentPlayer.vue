@@ -12,7 +12,6 @@ const props = defineProps({
     }
 });
 let Tcplyaer = null;
-let remoteStream = null;
 
 // 初始化腾讯云Tcplayer播放器
 const initRtsPlayer = async () => {
@@ -22,7 +21,7 @@ const initRtsPlayer = async () => {
     if (!Tcplyaer) {
 
         // 初始化SDK
-        Tcplyaer = window?.TCPlayer('webrtc-sharevideo-container', {
+        Tcplyaer = window?.TCPlayer('tcplayer-container', {
             sources: []
         });
         if (!Tcplyaer) {
@@ -48,16 +47,15 @@ const cleanup = () => {
 
 // 监听playing状态变化
 watch(() => props.playing, async (isPlaying) => {
-    debugger
     if (isPlaying) {
         if (!Tcplyaer) {
             await initRtsPlayer();
         } else {
             Tcplyaer.src(props.src);
         }
-    } else if (remoteStream && Tcplyaer) {
+    } else {
         // 暂停播放但不销毁
-        var x = document.getElementById("wsplayer");
+        var x = document.querySelector("#tcplayer-container video");
         x?.pause();
     }
 });
@@ -73,21 +71,21 @@ onUnmounted(() => {
 });
 
 onDeactivated(() => {
-    var x = document.getElementById("wsplayer");
+    var x = document.getElementById("tcplayer-container");
     x?.pause();
 });
 </script>
 
 <template>
     <div class="tencent-tcplayer relative">
-        <video id="webrtc-sharevideo-container" ref="videoRef" muted controls autoplay></video>
+        <video id="tcplayer-container" ref="videoRef" muted controls autoplay></video>
     </div>
 </template>
 
 <style scoped>
 .tencent-tcplayer {
     width: 100%;
-    /* height: 100%; */
+    height: 100%;
 }
 
 video {
