@@ -20,9 +20,6 @@ importers:
       hls.js:
         specifier: ^1.6.13
         version: 1.6.13
-      jessibuca:
-        specifier: ^4.0.0
-        version: 4.0.0
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
@@ -616,9 +613,6 @@ packages:
   '@tsconfig/node22@22.0.2':
     resolution: {integrity: sha512-Kmwj4u8sDRDrMYRoN9FDEcXD8UpBSaPQQ24Gz+Gamqfm7xxn+GBR7ge/Z7pK8OXNGyUzbSwJj+TH6B+DS/epyA==}
 
-  '@types/dom-webcodecs@0.1.16':
-    resolution: {integrity: sha512-gRNWaC3YW5EzhPRjVYy7BnxCbtLGqsgu+uTkmV/IxOF1bllFD+FAJ1KBdsDFsuJB+F+CE+nWmMlWt8vaZ3yYXA==}
-
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
@@ -627,9 +621,6 @@ packages:
 
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
-
-  '@vicons/antd@0.13.0':
-    resolution: {integrity: sha512-yrUGoUSz2BbGupk9ghQOahc04n5H3MwUDM9pVPsLh9U1uqB47oRWZvYRiZaT1JKPqgTgSE6BXcVw4i9MOF4M+g==}
 
   '@videojs/http-streaming@3.17.2':
     resolution: {integrity: sha512-VBQ3W4wnKnVKb/limLdtSD2rAd5cmHN70xoMf4OmuDd0t2kfJX04G+sfw6u2j8oOm2BXYM9E1f4acHruqKnM1g==}
@@ -970,9 +961,6 @@ packages:
   isexe@3.1.1:
     resolution: {integrity: sha512-LpB/54B+/2J5hqQ7imZHfdU31OlgQqx7ZicVlkm9kzg9/w8GKLEcFfJl/t7DCEDueOyBAD6zCCwTO6Fzs0NoEQ==}
     engines: {node: '>=16'}
-
-  jessibuca@4.0.0:
-    resolution: {integrity: sha512-BQw6mmz+hQB+VlDqiAvL1a5MmJFDj/YLzBGfFVuSR6wh8ZgcqkUMwZkRrWByK4rY9rQgPrsO+4BJ9HxO1UyZ4Q==}
 
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
@@ -1893,8 +1881,6 @@ snapshots:
 
   '@tsconfig/node22@22.0.2': {}
 
-  '@types/dom-webcodecs@0.1.16': {}
-
   '@types/estree@1.0.8': {}
 
   '@types/node@22.18.9':
@@ -1902,8 +1888,6 @@ snapshots:
       undici-types: 6.21.0
 
   '@types/web-bluetooth@0.0.21': {}
-
-  '@vicons/antd@0.13.0': {}
 
   '@videojs/http-streaming@3.17.2(video.js@8.23.4)':
     dependencies:
@@ -2302,11 +2286,6 @@ snapshots:
   isexe@2.0.0: {}
 
   isexe@3.1.1: {}
-
-  jessibuca@4.0.0:
-    dependencies:
-      '@types/dom-webcodecs': 0.1.16
-      '@vicons/antd': 0.13.0
 
   jiti@2.6.1: {}
 
