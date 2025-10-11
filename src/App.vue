@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 // @ts-ignore
 import VideoPlayer from './components/VideoPlayer.vue';
 
@@ -30,11 +30,50 @@ const isPlaying = ref<boolean>(false);
 // 当前激活的标签
 const activeTab = ref<string>(tabs[0]!.id);
 
+// 从URL参数中获取拉流地址
+const getUrlParam = (name: string): string | null => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+};
+
+// 更新URL参数，不刷新页面
+const updateUrlParam = (name: string, value: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set(name, value);
+    window.history.pushState({}, '', url.toString());
+};
+
+// 保存到localStorage
+const saveToLocalStorage = () => {
+    localStorage.setItem('streamPlayerUrl', sharedUrl.value);
+    localStorage.setItem('streamPlayerTab', activeTab.value);
+};
+
+// 从localStorage加载
+const loadFromLocalStorage = () => {
+    const savedUrl = localStorage.getItem('streamPlayerUrl');
+    const savedTab = localStorage.getItem('streamPlayerTab');
+    
+    if (savedUrl) {
+        sharedUrl.value = savedUrl;
+    }
+    
+    if (savedTab && tabs.some(tab => tab.id === savedTab)) {
+        activeTab.value = savedTab;
+    }
+};
+
 // 切换标签
 const switchTab = (tabId: string) => {
     activeTab.value = tabId;
     // 切换标签时停止播放
     isPlaying.value = false;
+    // 保存到localStorage
+    saveToLocalStorage();
+    // 更新URL参数
+    if (sharedUrl.value) {
+        updateUrlParam('tab', tabId);
+    }
 };
 
 // 获取当前标签
@@ -62,6 +101,38 @@ const getTabHint = (type: string) => {
             return '';
     }
 };
+
+// 监听sharedUrl变化，保存到localStorage并更新URL
+watch(sharedUrl, (newUrl) => {
+    saveToLocalStorage();
+    if (newUrl) {
+        updateUrlParam('url', newUrl);
+    }
+});
+
+// 页面加载时，优先从URL读取，其次从localStorage读取
+onMounted(() => {
+    // 从URL读取
+    const urlParam = getUrlParam('url');
+    const tabParam = getUrlParam('tab');
+    
+    let urlLoaded = false;
+    
+    if (urlParam) {
+        sharedUrl.value = urlParam;
+        urlLoaded = true;
+    }
+    
+    if (tabParam && tabs.some(tab => tab.id === tabParam)) {
+        activeTab.value = tabParam;
+        urlLoaded = true;
+    }
+    
+    // 如果URL没有参数，则从localStorage读取
+    if (!urlLoaded) {
+        loadFromLocalStorage();
+    }
+});
 </script>
 
 <template>
