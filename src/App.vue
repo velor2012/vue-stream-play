@@ -53,11 +53,11 @@ const saveToLocalStorage = () => {
 const loadFromLocalStorage = () => {
     const savedUrl = localStorage.getItem('streamPlayerUrl');
     const savedTab = localStorage.getItem('streamPlayerTab');
-    
+
     if (savedUrl) {
         sharedUrl.value = savedUrl;
     }
-    
+
     if (savedTab && tabs.some(tab => tab.id === savedTab)) {
         activeTab.value = savedTab;
     }
@@ -86,6 +86,27 @@ const togglePlaying = () => {
     isPlaying.value = !isPlaying.value;
 };
 
+// 新增：移动端提示状态与工具方法
+const showMobileWarning = ref<boolean>(false);
+let mobileWarningTimer: number | null = null;
+
+const isMobile = (): boolean => {
+    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
+    return /android|iphone|ipad|ipod|mobile/i.test(ua);
+};
+
+const triggerMobileWarning = () => {
+    if (mobileWarningTimer) {
+        clearTimeout(mobileWarningTimer);
+        mobileWarningTimer = null;
+    }
+    showMobileWarning.value = true;
+    mobileWarningTimer = window.setTimeout(() => {
+        showMobileWarning.value = false;
+        mobileWarningTimer = null;
+    }, 5000);
+};
+
 // 获取当前标签的提示信息
 const getTabHint = (type: string) => {
     switch (type) {
@@ -96,6 +117,10 @@ const getTabHint = (type: string) => {
         case 'tencent':
             return '腾讯云直播流 (使用Jessibuca播放)';
         case 'fmp4':
+            // 新增：进入 fmp4 分支时，若为移动端则触发提示卡片
+            if (isMobile()) {
+                triggerMobileWarning();
+            }
             return 'FMP4流 (使用wsPlayer通过WebSocket播放)';
         default:
             return '';
@@ -115,19 +140,19 @@ onMounted(() => {
     // 从URL读取
     const urlParam = getUrlParam('url');
     const tabParam = getUrlParam('tab');
-    
+
     let urlLoaded = false;
-    
+
     if (urlParam) {
         sharedUrl.value = urlParam;
         urlLoaded = true;
     }
-    
+
     if (tabParam && tabs.some(tab => tab.id === tabParam)) {
         activeTab.value = tabParam;
         urlLoaded = true;
     }
-    
+
     // 如果URL没有参数，则从localStorage读取
     if (!urlLoaded) {
         loadFromLocalStorage();
@@ -169,6 +194,13 @@ onMounted(() => {
                 <keep-alive>
                     <VideoPlayer :key="currentTab.type" :src="sharedUrl" :type="currentTab.type" :playing="isPlaying" />
                 </keep-alive>
+            </div>
+
+            <!-- 新增：移动端提示卡片覆盖层 -->
+            <div v-if="showMobileWarning" class="mobile-warning-overlay">
+                <div class="mobile-warning-card">
+                    请切换到常规标签页并将wss改为http并更换后缀.mp4为.flv
+                </div>
             </div>
         </main>
     </div>
@@ -321,6 +353,7 @@ body {
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    flex-wrap: nowrap;
 }
 
 .input-group:focus-within {
@@ -329,7 +362,9 @@ body {
 }
 
 .url-input {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
     padding: 0.875rem 1.25rem;
     border: 1px solid #e2e8f0;
     border-right: none;
@@ -352,6 +387,8 @@ body {
     border-radius: 0 12px 12px 0;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .play-button:hover {
@@ -388,5 +425,52 @@ body {
 .video-container:hover {
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
     transform: scale(1.005);
+}
+
+@media (max-width: 480px) {
+  .url-input {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+  .play-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* 新增：移动端提示卡片样式 */
+.mobile-warning-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.mobile-warning-card {
+    margin: 10px;
+    background: #ffffff;
+    color: #0f172a;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    max-width: 520px;
+    text-align: center;
+    font-size: 0.95rem;
+    animation: fadeInUp 0.25s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
